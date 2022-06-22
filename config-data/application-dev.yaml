@@ -1,8 +1,111 @@
-server:
-  port: 8099
 spring:
   cloud:
     config:
       allowOverride: true
       overrideNone: true
       overrideSystemProperties: false
+  
+server:
+  port: 8099
+  
+
+# Configuration: 
+#  Properties: 
+#   Property: 
+#    - 
+#    name: name
+#    value: "${bundle:application:log.file.name}"
+#    - 
+#    name: path
+#     value: "${bundle:application:log.file.path}"
+#    - 
+#    name: pattern
+#     value: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg{nolookups}%n"
+#  Appenders: 
+#   Console: 
+#    PatternLayout: 
+#     pattern: "${pattern}"
+#    name: stdout
+#    _target: SYSTEM_OUT
+#   RollingFile: 
+#    PatternLayout: 
+#     _pattern: "${pattern}"
+#    Policies: 
+#     TimeBasedTriggeringPolicy: 
+#      _interval: 1
+#      _modulate: true
+#    DefaultRolloverStrategy: 
+#     Delete: 
+#      IfFileName: 
+#       _glob: "${name}-*.log"
+#      IfLastModified: 
+#       _age: 8d
+#      _basePath: "${path}"
+#    _name: logfile
+#    _fileName: "${path}/${name}.log"
+#    _filePattern: "${path}/${name}-%d{yyyy-MM-dd}.log"
+#  Loggers: 
+#   AsyncLogger: 
+#    AppenderRef: 
+#     _ref: logfile
+#    _name: "com.tdp.ms"
+#    _level: info
+#    _additivity: true
+#   Root: 
+#    AppenderRef: 
+#     _ref: stdout
+#    _level: info
+
+
+Configuration:
+  name: Default
+
+  properties:
+    property:
+      name: log-path
+      value: "logs"
+
+  appenders:
+
+    Console:
+      name: Console_Appender
+      target: SYSTEM_OUT
+      PatternLayout:
+        pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"
+
+    File:
+      name: File_Appender
+      fileName: ${log-path}/logfile.log
+      PatternLayout:
+        pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"
+
+    RollingFile:
+      - name: RollingFile_Appender
+        fileName: ${log-path}/rollingfile.log
+        filePattern: "logs/archive/rollingfile.log.%d{yyyy-MM-dd-hh-mm}.gz"
+        PatternLayout:
+          pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"
+        Policies:
+          SizeBasedTriggeringPolicy:
+            size: 1 KB
+        DefaultRollOverStrategy:
+          max: 30
+
+  Loggers:
+
+    Root:
+      level: debug
+      AppenderRef:
+        - ref: Console_Appender
+
+    Logger:
+      - name: com.tdp.userservice
+        additivity: false
+        level: debug
+        AppenderRef:
+          - ref: Console_Appender
+            level: info
+          - ref: File_Appender
+            level: error
+          - ref: RollingFile_Appender
+            level: debug
