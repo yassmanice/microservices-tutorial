@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+	<Properties>
+		<Property name="name">${bundle:application:log.file.name}</Property>
+		<Property name="path">${bundle:application:log.file.path}</Property>
+		<Property name="pattern">[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg{nolookups}%n</Property>
+	</Properties>
+
+	<Appenders>
+		<Console name="stdout" target="SYSTEM_OUT">
+			<PatternLayout pattern="${pattern}"/>
+		</Console>
+		<RollingFile name="logfile" fileName="${path}/${name}.log" filePattern="${path}/${name}-%d{yyyy-MM-dd}.log">
+			<PatternLayout pattern="${pattern}"/>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1"	modulate="true"/>
+			</Policies>
+			<DefaultRolloverStrategy>
+				<Delete basePath="${path}">
+					<IfFileName glob="${name}-*.log"
+					/>
+					<IfLastModified age="8d" />
+				</Delete>
+			</DefaultRolloverStrategy>
+		</RollingFile>
+	</Appenders>
+
+	<Loggers>
+		<AsyncLogger name="com.tdp" level="info" additivity="true">
+			<AppenderRef ref="logfile"/>
+		</AsyncLogger>
+		<Root level="info">
+			<AppenderRef ref="stdout" />
+		</Root>
+	</Loggers>
+</Configuration>
